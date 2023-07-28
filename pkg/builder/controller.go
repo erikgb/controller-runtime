@@ -97,10 +97,11 @@ func (blder *Builder) For(object client.Object, opts ...ForOption) *Builder {
 
 // OwnsInput represents the information set by Owns method.
 type OwnsInput struct {
-	matchEveryOwner  bool
-	object           client.Object
-	predicates       []predicate.Predicate
-	objectProjection objectProjection
+	matchEveryOwner     bool
+	object              client.Object
+	predicates          []predicate.Predicate
+	objectProjection    objectProjection
+	eventHandlerWrapper handler.EventHandlerWrapper
 }
 
 // Owns defines types of Objects being *generated* by the ControllerManagedBy, and configures the ControllerManagedBy to respond to
@@ -300,6 +301,9 @@ func (blder *Builder) doWatch() error {
 			blder.forInput.object,
 			opts...,
 		)
+		if own.eventHandlerWrapper != nil {
+			hdler = own.eventHandlerWrapper.Wrap(hdler)
+		}
 		allPredicates := append([]predicate.Predicate(nil), blder.globalPredicates...)
 		allPredicates = append(allPredicates, own.predicates...)
 		if err := blder.ctrl.Watch(src, hdler, allPredicates...); err != nil {

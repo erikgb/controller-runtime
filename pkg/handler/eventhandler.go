@@ -56,6 +56,12 @@ type EventHandler interface {
 	Generic(context.Context, event.GenericEvent, workqueue.RateLimitingInterface)
 }
 
+// EventHandlerWrapper can act as a decorator for another EventHandler
+type EventHandlerWrapper interface {
+	EventHandler
+	Wrap(wrappee EventHandler) EventHandler
+}
+
 var _ EventHandler = Funcs{}
 
 // Funcs implements EventHandler.

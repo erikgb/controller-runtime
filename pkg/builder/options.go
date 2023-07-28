@@ -17,6 +17,7 @@ limitations under the License.
 package builder
 
 import (
+	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 )
 
@@ -153,4 +154,21 @@ type matchEveryOwner struct{}
 // ApplyToOwns applies this configuration to the given OwnsInput options.
 func (o matchEveryOwner) ApplyToOwns(opts *OwnsInput) {
 	opts.matchEveryOwner = true
+}
+
+// WithEventHandlerWrapper sets the given wrapper event handler.
+func WithEventHandlerWrapper(wrapper handler.EventHandlerWrapper) EventHandlerWrapper {
+	return EventHandlerWrapper{
+		wrapper: wrapper,
+	}
+}
+
+// EventHandlerWrapper can act as a decorator for another EventHandler
+type EventHandlerWrapper struct {
+	wrapper handler.EventHandlerWrapper
+}
+
+// ApplyToOwns applies this configuration to the given OwnsInput options.
+func (e EventHandlerWrapper) ApplyToOwns(opts *OwnsInput) {
+	opts.eventHandlerWrapper = e.wrapper
 }
